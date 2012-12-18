@@ -1,0 +1,10 @@
+#!/bin/sh
+
+APP_DIR=`dirname "$0"`
+export APP_DIR
+
+if [ ! -z "$1" ] ; then
+    CMD="add"
+fi
+
+exec steadyflow $CMD "$@"
