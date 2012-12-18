@@ -1,0 +1,12 @@
+#! /bin/sh
+
+if [ ! -z "$1" ] ; then
+    if [ -d "$1" ] ; then
+        cd "$1"
+        shift
+    else
+        cd "$(dirname "$1")"
+    fi
+fi
+
+exec gvim "$@"
