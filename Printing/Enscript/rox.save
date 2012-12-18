@@ -1,0 +1,38 @@
+#! /usr/bin/env python
+
+"""Show a ROX SaveBox, that saves the data piped in into a file.
+"""
+
+import sys
+import argparse
+import findrox
+findrox.version(1, 9, 8)
+import rox
+from rox import saving
+import sys
+
+def main(options):
+    """Main program."""
+    saveable = SaveStdin()
+    box = saving.SaveBox(saveable, options.filename, 'text/plain')
+    box.show()
+    rox.mainloop()
+    return
+
+class SaveStdin(saving.Saveable):
+    def save_to_stream(self, stream):
+        stream.write(sys.stdin.read())
+
+def get_options():
+    """Get options for the script."""
+    parser = argparse.ArgumentParser(
+               description="output a file via a ROX save box",
+             )
+    # parser.add_argument() calls here
+    parser.add_argument('-o', '--filename', metavar="FILENAME", help='default filename', default='output.txt')
+    options = parser.parse_args()
+    # extra processing of options here
+    return options
+
+if __name__ == "__main__":
+    main(get_options())

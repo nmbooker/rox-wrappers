@@ -1,0 +1,4 @@
+#! /bin/bash
+
+SCRIPTDIR="$(readlink -f "$(dirname "$0")")"
+enscript -o- "$1" | "${SCRIPTDIR}/rox.save" --filename="$1.ps"
