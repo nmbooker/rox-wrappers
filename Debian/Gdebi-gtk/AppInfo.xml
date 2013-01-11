@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <AppInfo>
-  <Summary>ROX wrapper for gdebi-gtk</Summary>
+  <Summary>Drag and drop .deb package files to install</Summary>
   <About>
-    <Purpose>Drag and drop Debian package file(s) on app icon to install</Purpose>
+    <Purpose>ROX wrapper for gdebi-gtk.  Drag and drop Debian package file(s) on app icon to install.</Purpose>
     <Version>0.1.0 by AppFactory 2.1.5 (18 December 2005)</Version>
     <Authors>AppFactory by Stephen Watson, wrapper by Nick</Authors>
     <License>GNU General Public License</License>
