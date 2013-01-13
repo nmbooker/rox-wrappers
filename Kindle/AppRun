@@ -2,9 +2,18 @@
 
 # ROX Wrapper that gets and installs KindleForPC.
 #
-# Needs Wine and winetricks installed.
+# See Debian_Packages file in this directory for a list of packages
+# required for this to run.
 #
-# This avoids redistribution issues.
+# Downloading from Amazon avoids licensing and terms of use issues
+# associated redistribution.
+#
+# If you make a derivative of this, for your own sake DO NOT include a
+# copy of Amazon's installer along with it.  Instead point
+# $DOWNLOAD_URL to the final URL the package gets downloaded from.
+#
+# The easiest way to get this URL is to download the file manually and
+# look it up in your web browser's Downloads history screen.
 
 use warnings;
 use strict;
@@ -15,17 +24,25 @@ use File::Spec;
 use File::Temp;
 
 my $DOWNLOAD_URL = 'http://kindleforpc.amazon.com/40382/KindleForPC-installer.exe';
+
 my $options = get_options();
 my $script_name = $0;
 my $script_path = abs_path($0);
 my $appdir = dirname($script_path);
-my $diricon_path = File::Spec->catdir($appdir, '.DirIcon');
 
+# Work out where everything is going to go
+my $diricon_path = File::Spec->catdir($appdir, '.DirIcon');
 my $kindleprefix = File::Spec->catdir($ENV{HOME}, '.kindle-rox');
-mkdir $kindleprefix unless -d $kindleprefix;
 my $wineprefix = File::Spec->catdir($kindleprefix, 'wine');
+
+# Make our .kindle-rox directory if not present
+mkdir $kindleprefix unless -d $kindleprefix;
+
+# Set up WINEPREFIX for our wine calls
 $ENV{WINEPREFIX} = $wineprefix;
 print STDERR "WINEPREFIX will be $wineprefix\n";
+
+# exe will probably end up at C:\Program Files\Amazon\Kindle\Kindle.exe
 my $exepath = File::Spec->catfile($wineprefix, 'drive_c', 'Program Files', 'Amazon', 'Kindle', 'Kindle.exe');
 
 install_kindle() unless wine_dir_is_present();
