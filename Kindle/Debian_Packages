@@ -1,0 +1,9 @@
+wine
+winetricks
+wget
+xterm
+perl
+
+Optional (for building a dir icon):
+icoutils
+imagemagick

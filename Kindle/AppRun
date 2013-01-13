@@ -1,0 +1,182 @@
+#! /usr/bin/env perl
+
+# ROX Wrapper that gets and installs KindleForPC.
+#
+# Needs Wine and winetricks installed.
+#
+# This avoids redistribution issues.
+
+use warnings;
+use strict;
+use diagnostics;
+use Cwd 'abs_path';
+use File::Basename 'dirname';
+use File::Spec;
+use File::Temp;
+
+my $DOWNLOAD_URL = 'http://kindleforpc.amazon.com/40382/KindleForPC-installer.exe';
+my $options = get_options();
+my $script_name = $0;
+my $script_path = abs_path($0);
+my $appdir = dirname($script_path);
+my $diricon_path = File::Spec->catdir($appdir, '.DirIcon');
+
+my $kindleprefix = File::Spec->catdir($ENV{HOME}, '.kindle-rox');
+mkdir $kindleprefix unless -d $kindleprefix;
+my $wineprefix = File::Spec->catdir($kindleprefix, 'wine');
+$ENV{WINEPREFIX} = $wineprefix;
+print STDERR "WINEPREFIX will be $wineprefix\n";
+my $exepath = File::Spec->catfile($wineprefix, 'drive_c', 'Program Files', 'Amazon', 'Kindle', 'Kindle.exe');
+
+install_kindle() unless wine_dir_is_present();
+run_kindle();
+
+sub wine_dir_is_present {
+    return (-d $wineprefix);
+}
+
+sub install_kindle {
+    unless ($options->{noxterm}) {
+        exec('xterm', '-e', $script_path, "--noxterm");
+    }
+    print STDERR "Downloading Kindle for PC Installer from Amazon...\n";
+    use File::Spec::Unix;
+    my $url = $DOWNLOAD_URL;
+    my ($v, $d, $installer_name) = File::Spec::Unix->splitpath($url);
+    my $tmpdir = File::Temp->newdir("roxkindleXXXX", TMPDIR => 1);
+    my $exefile = File::Spec->catdir($tmpdir, $installer_name);
+    mkdir($wineprefix);
+    my $wget_exitcode = system('wget', '-O', $exefile, $url);
+    if ($wget_exitcode != 0) {
+        die("Cannot continue.  wget exited with status $wget_exitcode.");
+    }
+
+    print STDERR "Applying the necessary winetricks - install VC++ 2008 runtime ...\n";
+    my $wt_exitcode = system('winetricks', 'vcrun2008');
+    if ($wt_exitcode != 0) {
+        die("Cannot continue.  winetricks exited with status $wt_exitcode.");
+    }
+
+    print STDERR "Run the Kindle installer...\n";
+    my $wine_exitcode = system('wine', $exefile);
+    if ($wine_exitcode != 0) {
+        die("Cannot continue.  wine exited with status $wine_exitcode.");
+    }
+
+    unless ( -e $diricon_path ) {
+        print STDERR "Attempt to extract icon...\n";
+        my $icotmp = File::Spec->catfile($tmpdir->dirname, "kindle.ico");
+        my $wrt_exitcode = system("wrestool", '-x', '-n', 'IDI_ICON1', '-o', $icotmp, $exepath);
+        if ($wrt_exitcode != 0) {
+            print STDERR "wrestool failed with exit status $wrt_exitcode.  This isn't critical, you just won't get a nice app icon.\n";
+        }
+        else {
+            my $cvt_exitcode = system('convert', $icotmp, "png:$diricon_path");
+            print STDERR "convert failed with exit status $wrt_exitcode.  This isn't critical, you just won't get a nice app icon.\n";
+
+        }
+    }
+}
+
+sub run_kindle {
+    print STDERR "Running Kindle.exe under wine...\n";
+    system('wine', $exepath);
+}
+
+sub get_options {
+    use File::Basename qw(basename);
+    use Getopt::Long;
+    use Pod::Usage;
+
+    my $prog = basename($0);  # can be used in error messages
+
+    my $options = {
+        help => 0,
+        man => 0,
+        # add further options here with their default values
+        noxterm => 0,   # whether to launch xterm for installation
+    };
+
+    Getopt::Long::Configure(qw{gnu_getopt});
+    my $parsed_ok = GetOptions(
+        'h|help'    =>  \$options->{help},
+        'man'       =>  \$options->{man},
+        # specify further options here with references to their values in the $options hashref
+        'noxterm'   => \$options->{noxterm},
+    );
+
+    pod2usage(-exitval => 2) unless $parsed_ok;
+
+    # Note -output defaults to *STDOUT if -exitval is 0 or 1.
+    # See the documentation for Pod::Usage under DESCRIPTION.
+    pod2usage(-exitval => 1, -verbose => 1) if $options->{help};
+    pod2usage(-exitval => 1, -verbose => 2) if $options->{man};
+
+    # Process remaining arguments from @ARGV here, adding results
+    # to $options.
+
+    return $options;
+}
+
+__END__
+
+=head1 NAME
+
+AppRun - Run or install Kindle for PC under Wine.
+
+=head1 SYNOPSIS
+
+AppRun [options]
+
+ Options:
+    -h, --help              brief help message
+    --man                   full documentation
+    --noxterm               don't exec inside an xterm if installing
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<--help> or B<-h>
+
+Print a brief help message and exit.
+
+=item B<--man>
+
+Print the manual page and exit.
+
+
+=back
+
+=head1 DESCRIPTION
+
+B<AppRun> will look for a B<~/.kindle-rox/wine> directory and, if present,
+will run the Kindle for PC application installed within under Wine,
+using that as its WINEPREFIX.
+
+If the wine subdirectory does not exist, this program will run itself
+again in an xterm, unless --noxterm option is specified.
+
+At that point, the script will attempt to download and install the
+KindleForPC and the needed runtime files.
+
+Assuming this succeeds, Kindle will be launched.  Sometimes, Kindle
+itself will fail to launch after installation.  If so, just (double-)click
+the app icon again and it should launch fine.
+
+=head1 DEPENDENCIES
+
+wget is used for downloading the installer
+
+wine is used to run the Windows Kindle program
+
+winetricks is used to download the C++ runtime library required
+
+xterm is used to display what's happening if installation is required
+
+perl is what this script was written in
+
+wrestool (from icoutils) and convert (from imagemagick) are used if available to extract a .DirIcon from the Kindle executable
+
+
+=cut
