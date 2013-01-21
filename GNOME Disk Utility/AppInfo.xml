@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<AppInfo>
+  <Summary>Manage Drives and Media</Summary>
+  <About>
+    <Purpose>Wrapper for Disk Utility</Purpose>
+    <Author>/home/nick/Apps/Desktop2App/gui.py 0.0.1</Author>
+  </About>
+</AppInfo>

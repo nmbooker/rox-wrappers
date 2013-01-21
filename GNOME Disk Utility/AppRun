@@ -1,0 +1,5 @@
+#!/bin/sh
+# AppRun for Disk Utility created by /home/nick/Apps/Desktop2App/gui.py 0.0.1
+# Manage Drives and Media
+
+exec gnome-disks
