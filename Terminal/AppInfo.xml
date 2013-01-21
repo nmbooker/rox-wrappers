@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<AppInfo>
+  <Summary>Open preferred terminal emulator with exo-open</Summary>
+  <About>
+    <Purpose>Wrapper for Terminal</Purpose>
+    <Version>0.1.0 by AppFactory 2.1.5 (18 December 2005)</Version>
+    <Authors>AppFactory by Stephen Watson, wrapper by Nick</Authors>
+    <License>GNU General Public License</License>
+    <Homepage/>
+  </About>
+</AppInfo>
