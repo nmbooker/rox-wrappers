@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<AppInfo>
+  <Summary>Look at your images easily</Summary>
+  <About>
+    <Purpose>Wrapper for Ristretto Image Viewer</Purpose>
+    <Author>/home/nick/Apps/Dev/Desktop2App/gui.py 0.0.1</Author>
+  </About>
+</AppInfo>

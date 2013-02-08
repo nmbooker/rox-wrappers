@@ -1,0 +1,5 @@
+#!/bin/sh
+# AppRun for Ristretto Image Viewer created by /home/nick/Apps/Dev/Desktop2App/gui.py 0.0.1
+# Look at your images easily
+
+exec ristretto $@
